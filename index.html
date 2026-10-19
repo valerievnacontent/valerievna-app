@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ксения Валерьевна — полезные посты</title>
+<script src="telegram-web-app.js"></script>
+<style>
+@font-face{font-family:"Unbounded";font-display:swap;src:local("Unbounded"),local("Unbounded SemiBold"),local("Unbounded Bold")}
+@font-face{font-family:"Golos Text";font-display:swap;src:local("Golos Text"),local("Golos Text Regular")}
+:root{
+  --bg:#ffffff;
+  --accent:#7a1230;
+  --accent-soft:#f8eef1;
+  --text:#1c1517;
+  --muted:#7b6f73;
+  --line:#eadfe2;
+  --head:"Unbounded","Montserrat","Arial Black",system-ui,sans-serif;
+  --body:"Golos Text","Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:var(--body);-webkit-text-size-adjust:100%}
+body{min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:36px 22px calc(36px + env(safe-area-inset-bottom))}
+.eyebrow{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--head);font-weight:700;font-size:30px;line-height:1.15;margin:14px 0 16px;letter-spacing:-.01em}
+h1 span{display:block}
+.lead{font-size:16px;line-height:1.55;color:var(--muted)}
+.cta{margin:32px 0;background:var(--accent);color:#fff;border-radius:24px;padding:28px 24px}
+.cta h2{font-family:var(--head);font-weight:600;font-size:20px;line-height:1.25;margin-bottom:12px}
+.cta p{font-size:15px;line-height:1.55;opacity:.92;margin-bottom:22px}
+.btn{display:inline-block;background:#fff;color:var(--accent);text-decoration:none;font-weight:600;font-size:15px;padding:14px 22px;border-radius:999px}
+.btn:active{transform:scale(.98)}
+.list{display:flex;flex-direction:column;gap:12px}
+.card{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px 16px;transition:border-color .15s,background .15s,transform .1s}
+.card:active{background:var(--accent-soft);border-color:var(--accent);transform:scale(.99)}
+.num{flex:none;width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-family:var(--head);font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center}
+.body{flex:1;min-width:0}
+.title{font-family:var(--head);font-weight:500;font-size:14px;line-height:1.35;margin-bottom:6px}
+.sub{font-size:13px;line-height:1.45;color:var(--muted)}
+.arrow{flex:none;width:22px;height:22px;color:var(--accent)}
+footer{margin-top:36px;text-align:center;font-size:13px;color:var(--muted)}
+footer b{display:block;font-family:var(--head);font-weight:500;color:var(--accent);font-size:13px;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+// ===== меняете только этот блок =====
+window.KK_DATA = {
+  eyebrow: "Навигация по постам",
+  titleLines: ["Полезные посты", "про ИИ и контент"],
+  lead: "Всё самое нужное из канала в одном месте: инструкции, промпты и разборы. Выбирайте тему и переходите к посту.",
+  cta: {
+    title: "Подписывайтесь на канал",
+    text: "Каждый день делюсь рабочими инструментами ИИ для маркетинга и контента. Заходите в канал, чтобы ничего не пропустить.",
+    button: "Открыть канал",
+    url: "https://t.me/ksenijavalerievna"
+  },
+  cards: [
+    { title: "Как установить ChatGPT, Claude на iPhone из России", sub: "Видеоинструкция", url: "https://t.me/ksenijavalerievna/1046" },
+    { title: "Instagram внутри ChatGPT", sub: "Подключаем профиль и делаем разбор аккаунта", url: "https://t.me/ksenijavalerievna/1051" },
+    { title: "ChatGPT + Canva", sub: "Редактируем любой баннер по слоям", url: "https://t.me/ksenijavalerievna/1054" },
+    { title: "55 кодов для ChatGPT", sub: "Коды, которые можно использовать прямо в чате", url: "https://t.me/ksenijavalerievna/1056" },
+    { title: "Контент-план за 15 минут", sub: "Три промпта, план на 7 дней, раскрытие темы и выгрузка в Excel", url: "https://t.me/ksenijavalerievna/1058" }
+  ],
+  footer: "Ксения Валерьевна"
+};
+// ===== конец блока =====
+
+(function () {
+  var D = window.KK_DATA;
+  var BG = "#ffffff";
+
+  // --- определяем, внутри ли Телеграма ---
+  var hash = location.hash || "", search = location.search || "";
+  var inTG = false;
+  try {
+    inTG = hash.indexOf("tgWebApp") !== -1 ||
+           search.indexOf("tgWebApp") !== -1 ||
+           !!window.TelegramWebviewProxy ||
+           !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.performAction);
+  } catch (e) {}
+
+  var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+
+  // --- запуск ---
+  if (tg) {
+    try { tg.ready(); } catch (e) {}
+    try { tg.expand(); } catch (e) {}
+    try { tg.setHeaderColor(BG); } catch (e) {}
+    try { tg.setBackgroundColor(BG); } catch (e) {}
+    try { tg.setBottomBarColor && tg.setBottomBarColor(BG); } catch (e) {}
+  }
+
+  // --- разметка из данных ---
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  var target = inTG ? "_self" : "_blank";
+  var arrowSvg = '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+
+  var html = "";
+  html += '<header>';
+  html += '<div class="eyebrow">' + esc(D.eyebrow) + '</div>';
+  html += '<h1>' + D.titleLines.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join("") + '</h1>';
+  html += '<p class="lead">' + esc(D.lead) + '</p>';
+  html += '</header>';
+
+  html += '<section class="cta">';
+  html += '<h2>' + esc(D.cta.title) + '</h2>';
+  html += '<p>' + esc(D.cta.text) + '</p>';
+  html += '<a class="btn" href="' + esc(D.cta.url) + '" data-url="' + esc(D.cta.url) + '" target="' + target + '" rel="noopener">' + esc(D.cta.button) + '</a>';
+  html += '</section>';
+
+  html += '<main class="list">';
+  D.cards.forEach(function (c, i) {
+    html += '<a class="card" href="' + esc(c.url) + '" data-url="' + esc(c.url) + '" target="' + target + '" rel="noopener">' +
+      '<div class="num">' + (i + 1 < 10 ? "0" : "") + (i + 1) + '</div>' +
+      '<div class="body"><div class="title">' + esc(c.title) + '</div><div class="sub">' + esc(c.sub) + '</div></div>' +
+      arrowSvg + '</a>';
+  });
+  html += '</main>';
+
+  html += '<footer>Автор<b>' + esc(D.footer) + '</b></footer>';
+  document.getElementById("app").innerHTML = html;
+
+  // --- отправка событий напрямую ---
+  function postEvent(name, data) {
+    var payload = JSON.stringify({ eventType: name, eventData: data || {} });
+    try {
+      if (window.TelegramWebviewProxy && window.TelegramWebviewProxy.postEvent) {
+        window.TelegramWebviewProxy.postEvent(name, JSON.stringify(data || {}));
+        return true;
+      }
+    } catch (e) {}
+    try {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.performAction) {
+        window.webkit.messageHandlers.performAction.postMessage({ name: name, data: data || {} });
+        return true;
+      }
+    } catch (e) {}
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(payload, "*");
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // --- обработчик клика ---
+  function onClick(ev) {
+    var a = ev.currentTarget;
+    var url = a.getAttribute("data-url");
+    if (!url || !inTG) return; // в обычном браузере ссылка открывается сама
+    ev.preventDefault();
+    var isTme = url.indexOf("https://t.me/") === 0;
+
+    if (tg) {
+      if (isTme) {
+        try { tg.close(); } catch (e) {}
+        try { tg.openTelegramLink(url); } catch (e) {}
+      } else {
+        try { tg.openLink(url); } catch (e) { location.href = url; }
+      }
+    } else {
+      if (isTme) {
+        postEvent("web_app_close", {});
+        postEvent("web_app_open_tg_link", { path_full: url.replace("https://t.me", "") });
+      } else {
+        postEvent("web_app_open_link", { url: url });
+      }
+    }
+  }
+
+  var links = document.querySelectorAll("a[data-url]");
+  for (var i = 0; i < links.length; i++) links[i].addEventListener("click", onClick);
+})();
+</script>
+</body>
+</html>
